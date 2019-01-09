@@ -339,13 +339,17 @@ export default class ImageViewer extends React.Component<Props, State> {
                 this.swipeDownOffset += diffY;
 
                 // 只要滑动溢出量不小于 0，就可以拖动
-                if (this.swipeDownOffset > 0) {
+                if (this.swipeDownOffset > 0 || this.swipeDownOffset < 0) {
                   this.positionY += diffY / this.scale;
                   this.animatedPositionY.setValue(this.positionY);
 
-                  // 越到下方，缩放越小
-                  this.scale = this.scale - diffY / 1000;
-                  this.animatedScale.setValue(this.scale);
+                  if (this.swipeDownOffset < 0) {
+                    this.scale = this.scale + diffY / 1000;
+                    this.animatedScale.setValue(this.scale);
+                  } else {
+                    this.scale = this.scale - diffY / 1000;
+                    this.animatedScale.setValue(this.scale);
+                  }
                 }
               }
             }
@@ -470,7 +474,7 @@ export default class ImageViewer extends React.Component<Props, State> {
   public panResponderReleaseResolve = () => {
     // 判断是否是 swipeDown
     if (this.props.enableSwipeDown && this.props.swipeDownThreshold) {
-      if (this.swipeDownOffset > this.props.swipeDownThreshold) {
+      if (this.swipeDownOffset > this.props.swipeDownThreshold || this.swipeDownOffset < -this.props.swipeDownThreshold) {
         if (this.props.onSwipeDown) {
           this.props.onSwipeDown();
         }
